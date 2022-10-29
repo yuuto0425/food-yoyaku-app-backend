@@ -19,3 +19,7 @@ mongoose
 app.use(express.json());
 app.use("/api/users",UserRouter);
 app.use("/api/product",ProductRouter);
+
+app.get("/api/text",(req,res) => {
+    res.status(200).send("ok");
+})
