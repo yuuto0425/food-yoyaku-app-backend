@@ -7,7 +7,7 @@ const UserRouter = require("./router/user");
 const ProductRouter = require("./router/product");
 
 
-app.listen(PORT, console.log("Expressサーバーが起動中・・・"));
+app.listen(process.env.PORT || PORT, console.log("Expressサーバーが起動中・・・"));
 mongoose
 .connect(process.env.MONGO_HEROKU_URL || process.env.MONGO_DB_URL)
 .then(() => console.log("MongoDBに接続中・・・"))
