@@ -8,6 +8,7 @@ router.post("/post" ,async (req,res) => {
             price:req.body.price,
             productName:req.body.productName,
             desc:req.body.desc,
+            img:req.body.img
         });
         const product = await newProduct.save();
         return res.status(200).json(product);

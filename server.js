@@ -3,8 +3,10 @@ const app = express();
 const mongoose = require("mongoose");
 const PORT = 5050;
 require("dotenv").config();
+const cors = require("cors");
 const UserRouter = require("./router/user");
 const ProductRouter = require("./router/product");
+const AuthRouter = require("./router/auth");
 
 
 app.listen(process.env.PORT || PORT, console.log("Expressサーバーが起動中・・・"));
@@ -15,10 +17,19 @@ mongoose
     console.log(err);
 });
 
+//cors対策
+const corsOptions = {
+    // origin:"http://localhost:3000/"|| process.env.CORS_ORIGIN_URL,
+    origin:"http://localhost:3000/",
+}
+// app.use(cors(corsOptions));
+app.use(cors());
+
 //ミドルウェア
 app.use(express.json());
 app.use("/api/users",UserRouter);
 app.use("/api/product",ProductRouter);
+app.use("/api/auth",AuthRouter);
 
 app.get("/api/text",(req,res) => {
     res.status(200).send("ok");

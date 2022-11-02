@@ -18,9 +18,6 @@ const UserSchema = new mongoose.Schema({
         min:6,
         max:120,
     },
-    tel :{
-        type:Number,
-        unique:true,
-    }
+   
 });
 module.exports = mongoose.model("User",UserSchema);
