@@ -7,6 +7,7 @@ const cors = require("cors");
 const UserRouter = require("./router/user");
 const ProductRouter = require("./router/product");
 const AuthRouter = require("./router/auth");
+const CartRouter = require("./router/cart");
 
 
 app.listen(process.env.PORT || PORT, console.log("Expressサーバーが起動中・・・"));
@@ -30,6 +31,7 @@ app.use(express.json());
 app.use("/api/users",UserRouter);
 app.use("/api/product",ProductRouter);
 app.use("/api/auth",AuthRouter);
+app.use("/api/cart",CartRouter);
 
 app.get("/api/text",(req,res) => {
     res.status(200).send("ok");

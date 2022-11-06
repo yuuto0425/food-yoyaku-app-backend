@@ -18,6 +18,10 @@ const UserSchema = new mongoose.Schema({
         min:6,
         max:120,
     },
+    isAdmin:{
+        type:Boolean,
+        default:false
+    }
    
 });
 module.exports = mongoose.model("User",UserSchema);

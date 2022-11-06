@@ -1,5 +1,6 @@
 const User = require("../models/User");
 const dotenv = require("dotenv").config();
+const jwt = require("jsonwebtoken");
 
 const CryptoJS = require("crypto-js");
 const router = require("express").Router();
@@ -37,10 +38,37 @@ router.post("/login", async (req, res) => {
       process.env.SEC_KEY
     );
     const OriginalPassword = hashedPassword.toString(CryptoJS.enc.Utf8);
-    const password = req.body.password === OriginalPassword;
-    if (!password) return res.status(400).json("パスワードが違います。");
-    return res.status(200).json(user);
+    const passwordFlag = req.body.password === OriginalPassword;
+    if (!passwordFlag) return res.status(400).json("パスワードが違います。");
+    // console.log(user);
+
+    const accessToken = jwt.sign(
+      {
+        id: user._id,
+        isAdmin: user.isAdmin,
+      },
+      process.env.JWT_SEC,
+      {
+        expiresIn: "3d",
+      }
+    );
+    const { password, ...other } = user._doc;
+    // console.log(other);
+    return res.status(200).json({ ...other, accessToken });
   } catch (err) {
+    return res.status(500).json(err);
+  }
+});
+
+router.post("/logout/:id", async (req, res) => {
+  try {
+    const user = await User.findOne({ _id: req.params.id });
+    if (user)
+      return res
+        .status(200)
+        .json({ user:user, logoutMessage: `${user._id}はログアウトしました。` });
+  } catch (err) {
+    console.log(err);
     return res.status(500).json(err);
   }
 });
