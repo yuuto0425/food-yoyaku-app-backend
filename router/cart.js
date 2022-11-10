@@ -8,6 +8,15 @@ router.post("/", async (req, res) => {
   try {
     const newCart = await new Cart(req.body);
     const saveCart = await newCart.save();
+    const product = await Product.findById(req.body.productId);
+    if (!product)
+      return res
+        .status(404)
+        .json({ message: "productIdをbodyに登録してください。" });
+    if (req.body.products[0].quantity < 1)
+      return res.status(403).json({ message: "1つ以上追加してください" });
+    if (product.price !== req.body.products[0].price)
+      return res.status(404).json({ message: "不正な商品価格です。" });
     res.status(200).json(saveCart);
   } catch (err) {
     console.log(err);
@@ -28,8 +37,17 @@ router.put("/update/:id", async (req, res) => {
       },
       { new: true }
     );
+    const product = await Product.findById(req.body.productId);
     if (!updateCart)
       return res.status(404).json("あなたはすでにカートを使用済みです。");
+    if (!product)
+      return res
+        .status(404)
+        .json({ message: "productIdをbodyに登録してください。" });
+    if (req.body.products[0].quantity < 1)
+      return res.status(403).json({ message: "1つ以上追加してください" });
+    if (product.price !== req.body.products[0].price)
+      return res.status(404).json({ message: "不正な商品価格です。" });
     return res.status(200).json(updateCart);
   } catch (err) {
     console.log(err);
@@ -47,10 +65,9 @@ router.put("/quantity", async (req, res) => {
     const quantityCart = await Cart.findById(idQuery);
     if (!quantityCart)
       return res.status(404).json("該当のカートがありません。");
-    const filter = {_id:ObjectId(pQuery)}
-    const resultCart = await quantityCart.updateOne(
-      filter,
-      {
+    const filter = { _id: ObjectId(pQuery) };
+    const resultCart = await quantityCart
+      .updateOne(filter, {
         $set: {
           products: {
             productId: productId,
@@ -58,10 +75,10 @@ router.put("/quantity", async (req, res) => {
             price: price,
           },
         },
-      }
-    ).catch(error => {
-      console.log(error);
-    });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
     return res.status(200).json(resultCart);
   } catch (err) {
     console.log(err);
@@ -69,7 +86,7 @@ router.put("/quantity", async (req, res) => {
   }
 });
 //現在のカートの商品を削除
-router.delete("/delete", async (req, res) => {
+router.put("/delete", async (req, res) => {
   try {
     const productId = req.body.products[0].productId;
     const idQuery = req.query.id;
@@ -82,13 +99,15 @@ router.delete("/delete", async (req, res) => {
         .status(404)
         .json(`${productId}は、該当しない為削除できません。`);
     }
-    const deleteResult = await deleteCart.updateOne({
-      $pull: {
-        products: {
-          productId: productId,
+    const deleteResult = await deleteCart.updateOne(
+      {
+        $pull: {
+          products: {
+            productId: productId,
+          },
         },
-      },
-    });
+      }
+    );
     console.log(deleteResult);
     return res.status(200).json(deleteResult);
     // if(deleteCart)
